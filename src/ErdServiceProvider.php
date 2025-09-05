@@ -1,11 +1,13 @@
 <?php
 
-namespace LaravelErd;
+namespace Looaf\LaravelErd;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log;
-use LaravelErd\Support\ErdConfig;
+use Looaf\LaravelErd\Support\ErdConfig;
+use Looaf\LaravelErd\Services\ModelAnalyzer;
+use Looaf\LaravelErd\Services\RelationshipDetector;
+use Looaf\LaravelErd\Services\ErdDataGenerator;
 
 class ErdServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,11 @@ class ErdServiceProvider extends ServiceProvider
         $this->app->singleton('erd.enabled', function () {
             return ErdConfig::shouldBeAvailable();
         });
+
+        // Register our core services
+        $this->app->singleton(ModelAnalyzer::class);
+        $this->app->singleton(RelationshipDetector::class);
+        $this->app->singleton(ErdDataGenerator::class);
     }
 
     /**

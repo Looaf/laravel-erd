@@ -26,6 +26,24 @@ This will create a `config/erd.php` file where you can customize the package set
 
 Once installed, visit `/erd` in your browser to view the interactive ERD of your application's models.
 
+## Testing
+
+This package includes comprehensive tests. To run the test suite:
+
+```bash
+# Run all tests
+./vendor/bin/phpunit
+
+# Run with detailed output
+./vendor/bin/phpunit --testdox
+
+# Run specific test suites
+./vendor/bin/phpunit --testsuite Unit
+./vendor/bin/phpunit --testsuite Integration
+```
+
+For more detailed testing information, see [docs/testing.md](docs/testing.md).
+
 ## Requirements
 
 - PHP 8.1+

@@ -27,22 +27,24 @@
     },
     "require-dev": {
         "orchestra/testbench": "^7.0|^8.0|^9.0",
-        "phpunit/phpunit": "^9.0|^10.0"
+        "phpunit/phpunit": "^9.0|^10.0",
+        "mockery/mockery": "^1.4"
     },
     "autoload": {
         "psr-4": {
-            "LaravelErd\\": "src/"
+            "Looaf\\LaravelErd\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaravelErd\\Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Tests\\Fixtures\\Models\\": "tests/Fixtures/Models/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelErd\\ErdServiceProvider"
+                "Looaf\\LaravelErd\\ErdServiceProvider"
             ]
         }
     },

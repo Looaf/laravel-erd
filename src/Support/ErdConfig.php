@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelErd\Support;
+namespace Looaf\LaravelErd\Support;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -93,7 +93,7 @@ class ErdConfig
     public static function getModelPaths(): array
     {
         $paths = Config::get('erd.models.paths', ['app/Models']);
-        
+
         // Filter out empty strings that might come from environment variables
         return array_filter($paths, function ($path) {
             return !empty(trim($path));
@@ -114,7 +114,7 @@ class ErdConfig
     public static function getExcludedModels(): array
     {
         $excluded = Config::get('erd.models.exclude', []);
-        
+
         // Filter out empty strings that might come from environment variables
         return array_filter($excluded, function ($model) {
             return !empty(trim($model));
