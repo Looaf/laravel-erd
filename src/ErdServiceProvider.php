@@ -8,6 +8,7 @@ use Looaf\LaravelErd\Support\ErdConfig;
 use Looaf\LaravelErd\Services\ModelAnalyzer;
 use Looaf\LaravelErd\Services\RelationshipDetector;
 use Looaf\LaravelErd\Services\ErdDataGenerator;
+use Looaf\LaravelErd\Http\Middleware\ErdMiddleware;
 
 class ErdServiceProvider extends ServiceProvider
 {
@@ -38,8 +39,11 @@ class ErdServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Only register ERD functionality if enabled and in allowed environment
-        if (ErdConfig::shouldBeAvailable()) {
+        // Register middleware
+        $this->registerMiddleware();
+
+        // Only register ERD functionality if enabled
+        if (config('erd.enabled', true)) {
             $this->registerRoutes();
             $this->loadViewsFrom(__DIR__ . '/../resources/views', 'erd');
         }
@@ -62,13 +66,28 @@ class ErdServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the package middleware.
+     */
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app['router'];
+        $router->aliasMiddleware('erd', ErdMiddleware::class);
+    }
+
+    /**
      * Register the package routes.
      */
     protected function registerRoutes(): void
     {
+        // Get base middleware and add ERD middleware
+        $middleware = array_merge(
+            ErdConfig::getRouteMiddleware(),
+            ['erd']
+        );
+
         Route::group([
             'prefix' => ErdConfig::getRoutePath(),
-            'middleware' => ErdConfig::getRouteMiddleware(),
+            'middleware' => $middleware,
             'as' => ErdConfig::getRouteName() . '.',
         ], function () {
             $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');

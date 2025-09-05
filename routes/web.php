@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use LaravelErd\Http\Controllers\ErdController;
+use Looaf\LaravelErd\Http\Controllers\ErdController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +13,6 @@ use LaravelErd\Http\Controllers\ErdController;
 |
 */
 
-Route::get('/', [ErdController::class, 'index'])->name('erd.index');
-Route::get('/data', [ErdController::class, 'data'])->name('erd.data');
-Route::post('/refresh', [ErdController::class, 'refresh'])->name('erd.refresh');
+Route::get('/', [ErdController::class, 'index'])->name('index');
+Route::get('/data', [ErdController::class, 'data'])->name('data');
+Route::post('/refresh', [ErdController::class, 'refresh'])->name('refresh');
