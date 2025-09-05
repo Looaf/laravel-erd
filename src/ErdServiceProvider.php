@@ -58,11 +58,16 @@ class ErdServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/views' => resource_path('views/vendor/erd'),
         ], 'erd-views');
 
-        // Publish assets
+        // Publish built assets to public directory
+        $this->publishes([
+            __DIR__ . '/../public/vendor/laravel-erd' => public_path('vendor/laravel-erd'),
+        ], 'erd-assets');
+
+        // Publish source assets for customization (optional)
         $this->publishes([
             __DIR__ . '/../resources/js' => resource_path('js/vendor/erd'),
             __DIR__ . '/../resources/css' => resource_path('css/vendor/erd'),
-        ], 'erd-assets');
+        ], 'erd-source');
     }
 
     /**

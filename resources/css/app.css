@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom ERD styles */
+.erd-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.erd-table {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.erd-table-header {
+  @apply bg-erd-primary text-white px-4 py-2 rounded-t-lg font-semibold;
+}
+
+.erd-table-column {
+  @apply px-4 py-2 border-b border-gray-100 text-sm hover:bg-gray-50;
+}
+
+.erd-table-column:last-child {
+  @apply border-b-0;
+}
+
+.erd-relationship-line {
+  @apply stroke-erd-secondary stroke-2;
+}
+
+.erd-loading {
+  @apply flex items-center justify-center min-h-screen;
+}
+
+.erd-error {
+  @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded;
+}
