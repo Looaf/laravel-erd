@@ -1,2 +1,9 @@
 export { default as ErdDiagram } from './ErdDiagram';
 export { default as TableNode } from './TableNode';
+export { default as RelationshipLine } from './RelationshipLine';
+export { default as FlowCanvas } from './FlowCanvas';
+export { default as ZoomControls } from './ZoomControls';
+export { default as ErdHeader } from './ErdHeader';
+export { default as LoadingState } from './LoadingState';
+export { default as ErrorState } from './ErrorState';
+export { default as EmptyState } from './EmptyState';

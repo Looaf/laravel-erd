@@ -34,3 +34,107 @@
 .erd-error {
   @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded;
 }
+
+/* React Flow specific styles */
+.react-flow-table-node {
+  @apply cursor-grab;
+}
+
+.react-flow-table-node:active {
+  @apply cursor-grabbing;
+}
+
+/* Smooth drag animations */
+.erd-table {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.erd-table:hover {
+  @apply transform-gpu;
+}
+
+/* Override React Flow default styles */
+.react-flow__node {
+  @apply cursor-grab;
+}
+
+.react-flow__node.selected {
+  @apply ring-2 ring-blue-500 ring-opacity-50;
+}
+
+.react-flow__edge-path {
+  @apply stroke-blue-500;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  @apply stroke-blue-600 stroke-2;
+}
+
+.react-flow__controls {
+  @apply bg-white border border-gray-300 rounded-lg shadow-sm;
+}
+
+.react-flow__controls-button {
+  @apply border-b border-gray-200 hover:bg-gray-50;
+}
+
+.react-flow__controls-button:last-child {
+  @apply border-b-0;
+}
+
+/* Relationship line styles */
+.react-flow__edge.selected .react-flow__edge-path {
+  @apply stroke-2;
+}
+
+.react-flow__edge-text {
+  @apply text-xs font-medium;
+}
+
+/* Custom relationship markers */
+.react-flow__arrowhead {
+  @apply fill-gray-500;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  @apply stroke-2;
+}
+
+.react-flow__edge:hover .react-flow__arrowhead {
+  @apply fill-gray-700;
+}
+
+/* Custom zoom controls */
+.erd-zoom-controls {
+  @apply absolute top-4 right-4 z-10 bg-white border border-gray-300 rounded-lg shadow-sm;
+}
+
+.erd-zoom-controls button {
+  @apply px-3 py-2 hover:bg-gray-50 transition-colors;
+}
+
+.erd-zoom-controls button:not(:last-child) {
+  @apply border-b border-gray-200;
+}
+
+.erd-zoom-controls button:first-child {
+  @apply rounded-t-lg;
+}
+
+.erd-zoom-controls button:last-child {
+  @apply rounded-b-lg;
+}
+
+/* MiniMap styling */
+.react-flow__minimap {
+  @apply border border-gray-300 rounded-lg overflow-hidden;
+}
+
+/* Pan and zoom indicators */
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane:active {
+  cursor: grabbing;
+}
