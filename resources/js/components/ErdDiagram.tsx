@@ -13,89 +13,99 @@ interface ErdConfig {
 }
 
 interface ErdDiagramProps {
-  config: ErdConfig;
+  config?: ErdConfig;
 }
 
 const ErdDiagram: React.FC<ErdDiagramProps> = ({ config }) => {
+  // Use window.ErdConfig as fallback if config prop is not provided
+  const erdConfig = config || (window as any).ErdConfig || {
+    apiEndpoint: '/erd/data',
+    refreshEndpoint: '/erd/refresh',
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+    routes: {
+      data: '/erd/data',
+      refresh: '/erd/refresh'
+    }
+  };
   const [erdData, setErdData] = useState<ErdData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('🚀 ErdDiagram component mounted');
+    console.log('⚙️ Config:', erdConfig);
     fetchErdData();
   }, []);
 
   const fetchErdData = async () => {
     try {
+      console.log('🔄 Starting ERD data fetch...');
+      console.log('📍 Fetch URL:', erdConfig.routes.data);
+      console.log('🔑 CSRF Token:', erdConfig.csrfToken ? 'Present' : 'Missing');
+      
       setLoading(true);
       setError(null);
 
-      const response = await fetch(config.routes.data, {
+      const response = await fetch(erdConfig.routes.data, {
         headers: {
-          'X-CSRF-TOKEN': config.csrfToken,
+          'X-CSRF-TOKEN': erdConfig.csrfToken,
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         }
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        console.error('❌ Response not OK:', response.status, response.statusText);
         throw new Error(`Failed to fetch ERD data: ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log('📦 Raw response data:', result);
+      console.log('📊 Response type:', typeof result);
+      console.log('📊 Response keys:', Object.keys(result || {}));
 
       // Handle Laravel response format
       if (result.success && result.data) {
+        console.log('✅ Using result.data (success format)');
+        console.log('📋 Tables found:', result.data.tables?.length || 0);
+        console.log('🔗 Relationships found:', result.data.relationships?.length || 0);
         setErdData(result.data);
       } else if (result.data) {
+        console.log('✅ Using result.data (direct format)');
+        console.log('📋 Tables found:', result.data.tables?.length || 0);
+        console.log('🔗 Relationships found:', result.data.relationships?.length || 0);
         setErdData(result.data);
+      } else if (result.tables) {
+        console.log('✅ Using result directly (tables format)');
+        console.log('📋 Tables found:', result.tables?.length || 0);
+        console.log('🔗 Relationships found:', result.relationships?.length || 0);
+        setErdData(result);
       } else {
+        console.error('❌ No valid data structure found in response');
+        console.log('🔍 Available keys:', Object.keys(result || {}));
         throw new Error(result.message || 'No data received');
       }
     } catch (err) {
+      console.error('💥 Error in fetchErdData:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      console.error('Error fetching ERD data:', err);
     } finally {
       setLoading(false);
+      console.log('🏁 Fetch complete, loading set to false');
     }
   };
 
   const handleRefresh = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // First call the refresh endpoint to clear cache
-      const refreshResponse = await fetch(config.routes.refresh, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': config.csrfToken,
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: new FormData()
-      });
-
-      if (!refreshResponse.ok) {
-        throw new Error(`Failed to refresh ERD data: ${refreshResponse.statusText}`);
-      }
-
-      const refreshResult = await refreshResponse.json();
-
-      if (refreshResult.success && refreshResult.data) {
-        setErdData(refreshResult.data);
-      } else {
-        // If refresh doesn't return data, fetch it separately
-        await fetchErdData();
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      console.error('Error refreshing ERD data:', err);
-      setLoading(false);
-    }
+    console.log('🔄 Refresh button clicked, refetching data...');
+    // For now, just refetch the data instead of calling a separate refresh endpoint
+    // This avoids CSRF issues until the backend refresh endpoint is properly implemented
+    await fetchErdData();
   };
 
   if (loading) {
+    console.log('⏳ Rendering loading state');
     return (
       <div className="erd-loading">
         <div className="flex flex-col items-center space-y-4">
@@ -107,6 +117,7 @@ const ErdDiagram: React.FC<ErdDiagramProps> = ({ config }) => {
   }
 
   if (error) {
+    console.log('❌ Rendering error state:', error);
     return (
       <div className="erd-container p-8">
         <div className="erd-error max-w-md mx-auto">

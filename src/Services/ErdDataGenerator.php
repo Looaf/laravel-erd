@@ -23,24 +23,45 @@ class ErdDataGenerator
      */
     public function generateErdData(): array
     {
+        Log::info('🏗️ Starting ERD data generation');
+        
         $cacheKey = $this->getCacheKey('complete_erd_data');
+        Log::info('🔑 Cache key: ' . $cacheKey);
+        Log::info('💾 Cache enabled: ' . ($this->isCacheEnabled() ? 'Yes' : 'No'));
         
         if ($this->isCacheEnabled() && Cache::has($cacheKey)) {
-            return Cache::get($cacheKey);
+            Log::info('✅ Returning cached ERD data');
+            $cachedData = Cache::get($cacheKey);
+            Log::info('📊 Cached tables count: ' . count($cachedData['tables'] ?? []));
+            return $cachedData;
         }
 
         try {
+            Log::info('🔍 Getting model metadata from ModelAnalyzer');
             // Get all model metadata
             $modelsMetadata = $this->modelAnalyzer->getModelMetadata();
+            Log::info('📋 Models found: ' . count($modelsMetadata));
+            Log::info('📝 Model classes: ' . json_encode(array_keys($modelsMetadata)));
             
             if (empty($modelsMetadata)) {
+                Log::warning('⚠️ No models found, returning empty ERD data');
                 return $this->generateEmptyErdData();
             }
 
+            Log::info('🔗 Getting relationships from RelationshipDetector');
             // Get all relationships
             $modelClasses = array_keys($modelsMetadata);
             $relationshipsData = $this->relationshipDetector->getRelationshipsForModels($modelClasses);
+            
+            $totalRelationships = 0;
+            foreach ($relationshipsData as $modelClass => $relationships) {
+                $count = count($relationships);
+                $totalRelationships += $count;
+                Log::info("🔗 {$modelClass}: {$count} relationships");
+            }
+            Log::info("🔗 Total relationships found: {$totalRelationships}");
 
+            Log::info('🔄 Transforming data for frontend');
             // Transform data for frontend
             $erdData = [
                 'tables' => $this->transformModelsToTables($modelsMetadata),
@@ -48,14 +69,21 @@ class ErdDataGenerator
                 'metadata' => $this->generateMetadata($modelsMetadata, $relationshipsData),
             ];
 
+            Log::info('📊 Final ERD data structure:');
+            Log::info('  - Tables: ' . count($erdData['tables']));
+            Log::info('  - Relationships: ' . count($erdData['relationships']));
+            Log::info('  - Metadata keys: ' . json_encode(array_keys($erdData['metadata'])));
+
             if ($this->isCacheEnabled()) {
+                Log::info('💾 Caching ERD data for ' . $this->getCacheTtl() . ' seconds');
                 Cache::put($cacheKey, $erdData, $this->getCacheTtl());
             }
 
+            Log::info('✅ ERD data generation completed successfully');
             return $erdData;
             
         } catch (\Exception $e) {
-            Log::error('Failed to generate ERD data: ' . $e->getMessage(), [
+            Log::error('💥 Failed to generate ERD data: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -339,11 +367,22 @@ class ErdDataGenerator
      */
     public function refreshErdData(): array
     {
+        Log::info('🔄 Starting ERD data refresh');
+        
+        Log::info('🧹 Clearing ErdDataGenerator cache');
         $this->clearCache();
+        
+        Log::info('🧹 Clearing ModelAnalyzer cache');
         $this->modelAnalyzer->clearCache();
+        
+        Log::info('🧹 Clearing RelationshipDetector cache');
         $this->relationshipDetector->clearCache();
         
-        return $this->generateErdData();
+        Log::info('🏗️ Regenerating ERD data after cache clear');
+        $data = $this->generateErdData();
+        
+        Log::info('✅ ERD data refresh completed');
+        return $data;
     }
 
     /**
@@ -351,20 +390,29 @@ class ErdDataGenerator
      */
     public function getErdDataSafely(): array
     {
+        Log::info('🛡️ Getting ERD data safely with error handling');
+        
         try {
-            return $this->generateErdData();
+            $data = $this->generateErdData();
+            Log::info('✅ ERD data retrieved safely');
+            return $data;
         } catch (\Exception $e) {
-            Log::error('Critical error generating ERD data: ' . $e->getMessage());
+            Log::error('💥 Critical error generating ERD data: ' . $e->getMessage());
+            Log::error('📍 Error location: ' . $e->getFile() . ':' . $e->getLine());
             
-            return [
+            $fallbackData = [
                 'tables' => [],
                 'relationships' => [],
                 'metadata' => [
                     'generated_at' => now()->toISOString(),
                     'error' => true,
                     'message' => 'Unable to generate ERD. Please check your models and configuration.',
+                    'debug_error' => config('app.debug') ? $e->getMessage() : null,
                 ],
             ];
+            
+            Log::info('🛡️ Returning fallback ERD data structure');
+            return $fallbackData;
         }
     }
 
