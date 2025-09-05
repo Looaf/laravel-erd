@@ -4,6 +4,8 @@ namespace LaravelErd;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+use LaravelErd\Support\ErdConfig;
 
 class ErdServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,11 @@ class ErdServiceProvider extends ServiceProvider
             __DIR__ . '/../config/erd.php',
             'erd'
         );
+
+        // Register a singleton for checking ERD availability
+        $this->app->singleton('erd.enabled', function () {
+            return ErdConfig::shouldBeAvailable();
+        });
     }
 
     /**
@@ -24,21 +31,27 @@ class ErdServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register routes
-        $this->registerRoutes();
+        // Only register ERD functionality if enabled and in allowed environment
+        if (ErdConfig::shouldBeAvailable()) {
+            $this->registerRoutes();
+            $this->loadViewsFrom(__DIR__ . '/../resources/views', 'erd');
+        }
 
-        // Publish configuration
+        // Always allow config publishing regardless of environment
         $this->publishes([
             __DIR__ . '/../config/erd.php' => config_path('erd.php'),
         ], 'erd-config');
-
-        // Load views
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'erd');
 
         // Publish views
         $this->publishes([
             __DIR__ . '/../resources/views' => resource_path('views/vendor/erd'),
         ], 'erd-views');
+
+        // Publish assets
+        $this->publishes([
+            __DIR__ . '/../resources/js' => resource_path('js/vendor/erd'),
+            __DIR__ . '/../resources/css' => resource_path('css/vendor/erd'),
+        ], 'erd-assets');
     }
 
     /**
@@ -46,13 +59,31 @@ class ErdServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
-        if (config('erd.enabled', true)) {
-            Route::group([
-                'prefix' => config('erd.route.path', 'erd'),
-                'middleware' => config('erd.route.middleware', ['web']),
-            ], function () {
-                $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-            });
+        Route::group([
+            'prefix' => ErdConfig::getRoutePath(),
+            'middleware' => ErdConfig::getRouteMiddleware(),
+            'as' => ErdConfig::getRouteName() . '.',
+        ], function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
+    }
+
+    /**
+     * Get the ERD configuration with validation.
+     */
+    public function getErdConfig(): array
+    {
+        $config = ErdConfig::all();
+
+        // Validate required configuration
+        if (empty(ErdConfig::getRoutePath())) {
+            throw new \InvalidArgumentException('ERD route path cannot be empty');
         }
+
+        if (empty(ErdConfig::getModelPaths())) {
+            throw new \InvalidArgumentException('ERD model paths cannot be empty');
+        }
+
+        return $config;
     }
 }

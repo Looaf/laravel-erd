@@ -18,12 +18,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure the route settings for accessing the ERD interface.
+    | - path: The URL path where ERD will be accessible
+    | - middleware: Array of middleware to apply to ERD routes
+    | - name: Route name prefix for ERD routes
     |
     */
     'route' => [
         'path' => env('ERD_ROUTE_PATH', 'erd'),
         'middleware' => ['web'],
-        'name' => 'erd.index'
+        'name' => env('ERD_ROUTE_NAME', 'erd')
     ],
 
     /*
@@ -33,9 +36,10 @@ return [
     |
     | Specify which environments the ERD should be available in.
     | This is a security feature to prevent access in production.
+    | Set to ['*'] to allow in all environments (not recommended).
     |
     */
-    'environments' => ['local', 'testing'],
+    'environments' => explode(',', env('ERD_ENVIRONMENTS', 'local,testing')),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,12 +47,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure caching for ERD data to improve performance.
+    | - enabled: Whether to cache ERD analysis results
+    | - ttl: Time to live in seconds (3600 = 1 hour)
+    | - key: Cache key prefix for ERD data
     |
     */
     'cache' => [
-        'enabled' => true,
-        'ttl' => 3600, // 1 hour
-        'key' => 'laravel_erd_data'
+        'enabled' => env('ERD_CACHE_ENABLED', true),
+        'ttl' => env('ERD_CACHE_TTL', 3600), // 1 hour
+        'key' => env('ERD_CACHE_KEY', 'laravel_erd_data')
     ],
 
     /*
@@ -57,11 +64,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure how the package discovers and analyzes Eloquent models.
+    | - paths: Directories to scan for models (relative to app root)
+    | - namespace: Base namespace for models
+    | - exclude: Array of model class names to exclude from ERD
     |
     */
     'models' => [
-        'paths' => ['app/Models'],
-        'namespace' => 'App\\Models',
-        'exclude' => []
+        'paths' => explode(',', env('ERD_MODEL_PATHS', 'app/Models')),
+        'namespace' => env('ERD_MODEL_NAMESPACE', 'App\\Models'),
+        'exclude' => explode(',', env('ERD_MODEL_EXCLUDE', ''))
     ]
 ];
