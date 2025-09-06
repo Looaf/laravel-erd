@@ -1,5 +1,5 @@
 export { default as ErdDiagram } from './ErdDiagram';
-export { default as TableNode } from './TableNode';
+export { default as TableNode } from './node/TableNode';
 export { default as RelationshipLine } from './RelationshipLine';
 export { default as FlowCanvas } from './FlowCanvas';
 export { default as ZoomControls } from './ZoomControls';

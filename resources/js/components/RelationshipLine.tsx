@@ -3,6 +3,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
+  getSimpleBezierPath,
   getSmoothStepPath,
   getStraightPath,
 } from 'reactflow';
@@ -21,7 +22,7 @@ const RelationshipLine: React.FC<EdgeProps> = ({
   data,
   label,
 }) => {
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  const [edgePath, labelX, labelY] = getSimpleBezierPath({
     sourceX,
     sourceY,
     targetX,

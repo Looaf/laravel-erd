@@ -15,7 +15,7 @@ import ReactFlow, {
 import { Grid3X3 } from 'lucide-react';
 import { ErdData } from '../types/erd';
 import { calculateAutoLayout } from '../utils/erdDataUtils';
-import TableNode from './TableNode';
+import TableNode from './node/TableNode';
 import RelationshipLine from './RelationshipLine';
 import ZoomControls from './ZoomControls';
 
@@ -85,12 +85,12 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
   }, [flowNodes, erdData, setFlowNodes, setNodes]);
 
   return (
-    <div className="flex-1 bg-gray-50 relative">
+    <div className="relative flex-1 bg-gray-50">
       {/* Auto Layout Button */}
       <div className="absolute top-4 left-4 z-10">
         <button
           onClick={handleAutoLayout}
-          className="bg-gray-600 bg-opacity-50 backdrop-blur-lg text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors shadow-sm flex items-center gap-2"
+          className="flex gap-2 items-center px-3 py-2 text-sm text-white bg-gray-600 bg-opacity-50 rounded-lg shadow-sm backdrop-blur-lg transition-colors hover:bg-gray-700"
         >
           <Grid3X3 size={16} />
           Auto Layout
