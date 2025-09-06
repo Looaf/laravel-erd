@@ -9,13 +9,13 @@
 
     {{-- Load compiled CSS from Vite build --}}
     @php
-        $packagePath = base_path('vendor/looaf/laravel-erd/public/vendor/laravel-erd');
+        $packagePath = base_path('vendor/looaf/laravel-erd/public');
         $cssPath = $packagePath . '/css/app.css';
         $jsPath = $packagePath . '/js/app.js';
         
         // For local development, also check relative paths
         if (!file_exists($cssPath)) {
-            $localPackagePath = base_path('packages/api/vendor/looaf/laravel-erd/public/vendor/laravel-erd');
+            $localPackagePath = base_path('packages/api/vendor/looaf/laravel-erd/public');
             $cssPath = $localPackagePath . '/css/app.css';
             $jsPath = $localPackagePath . '/js/app.js';
         }
@@ -62,9 +62,9 @@
     {{-- React app container --}}
     <div id="erd-app">
         {{-- Loading fallback while React loads --}}
-        <div class="flex items-center justify-center min-h-screen">
+        <div class="flex justify-center items-center min-h-screen">
             <div class="text-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
                 <p class="text-gray-600">Loading ERD...</p>
             </div>
         </div>

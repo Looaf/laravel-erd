@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [react()],
     build: {
-        outDir: 'public/vendor/laravel-erd',
+        outDir: 'public',
         rollupOptions: {
             input: 'resources/js/app.tsx',
             output: {
