@@ -10,7 +10,9 @@ import ReactFlow, {
   Connection,
   NodeTypes,
   MiniMap,
+  ConnectionLineType,
 } from 'reactflow';
+import { Grid3X3 } from 'lucide-react';
 import { ErdData } from '../types/erd';
 import { calculateAutoLayout } from '../utils/erdDataUtils';
 import TableNode from './TableNode';
@@ -77,7 +79,6 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
   const handleAutoLayout = useCallback(() => {
     if (!erdData || erdData.tables.length === 0) return;
 
-    debugLog('CANVAS', 'Applying auto-layout to nodes');
     const updatedNodes = calculateAutoLayout(flowNodes, erdData.tables.length);
     setFlowNodes(updatedNodes);
     setNodes(updatedNodes);
@@ -89,8 +90,9 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
       <div className="absolute top-4 left-4 z-10">
         <button
           onClick={handleAutoLayout}
-          className="bg-gray-600 bg-opacity-50 backdrop-blur-lg text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors shadow-sm"
+          className="bg-gray-600 bg-opacity-50 backdrop-blur-lg text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors shadow-sm flex items-center gap-2"
         >
+          <Grid3X3 size={16} />
           Auto Layout
         </button>
       </div>
@@ -125,7 +127,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
       >
         <ZoomControls />
         <MiniMap
-          nodeColor={(node) => {
+          nodeColor={() => {
             return '#3b82f6';
           }}
           nodeStrokeWidth={3}
@@ -141,7 +143,6 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1}
-          color="#e5e7eb"
         />
       </ReactFlow>
     </div>

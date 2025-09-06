@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore, Handle, Position } from 'reactflow';
 import { Table, Relationship, Column } from '../types/erd';
+import { GripVertical } from 'lucide-react';
 
 interface TableNodeProps {
   table: Table;
@@ -95,9 +96,7 @@ const TableNode: React.FC<TableNodeProps> = ({ table, relationships }) => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
           {/* Drag handle indicator */}
-          <svg style={{ width: '16px', height: '16px', opacity: 0.7, flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-          </svg>
+          <GripVertical size={16} style={{ opacity: 0.7, flexShrink: 0 }} />
           <h3 style={{ fontWeight: 'bold', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {table.name}
           </h3>

@@ -3,6 +3,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
+  getSmoothStepPath,
   getStraightPath,
 } from 'reactflow';
 
@@ -20,7 +21,7 @@ const RelationshipLine: React.FC<EdgeProps> = ({
   data,
   label,
 }) => {
-  const [edgePath, labelX, labelY] = getStraightPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
