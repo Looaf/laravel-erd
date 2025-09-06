@@ -8,6 +8,7 @@ import ErdHeader from './ErdHeader';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
 import EmptyState from './EmptyState';
+import DebugPanel from './DebugPanel';
 
 interface ErdDiagramProps {
   config?: ErdConfig;
@@ -17,6 +18,8 @@ interface ErdDiagramProps {
  * Main ERD diagram flow component
  */
 const ErdDiagramFlow: React.FC<ErdDiagramProps> = ({ config }) => {
+  const [showDebug, setShowDebug] = React.useState(false);
+  
   const {
     erdData,
     loading,
@@ -51,7 +54,7 @@ const ErdDiagramFlow: React.FC<ErdDiagramProps> = ({ config }) => {
 
   // Main diagram view
   return (
-    <div className="erd-container h-screen flex flex-col">
+    <div className="erd-container h-screen flex flex-col relative">
       <ErdHeader 
         erdData={erdData} 
         onRefresh={refreshData}
@@ -65,6 +68,20 @@ const ErdDiagramFlow: React.FC<ErdDiagramProps> = ({ config }) => {
         setEdges={setEdges}
         onNodeDragStop={handleNodeDragStop}
       />
+      
+      {/* Debug toggle button */}
+      <button
+        onClick={() => setShowDebug(!showDebug)}
+        className="fixed bottom-4 right-4 bg-red-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-700 z-40"
+        title="Toggle Debug Panel"
+      >
+        🐛 Debug
+      </button>
+      
+      {/* Debug panel - temporary for debugging */}
+      {showDebug && (
+        <DebugPanel erdData={erdData} nodes={nodes} edges={edges} />
+      )}
     </div>
   );
 };

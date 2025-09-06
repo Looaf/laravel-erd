@@ -1,5 +1,3 @@
-import { debugLog, debugError } from './debugUtils';
-
 /**
  * API utility functions for ERD data fetching
  */
@@ -33,9 +31,6 @@ export const getErdConfig = (config?: ErdConfig): ErdConfig => {
  * Fetch ERD data from the API
  */
 export const fetchErdData = async (config: ErdConfig): Promise<any> => {
-  debugLog('API', 'Starting ERD data fetch...');
-  debugLog('API', `Fetch URL: ${config.routes.data}`);
-  debugLog('API', `CSRF Token: ${config.csrfToken ? 'Present' : 'Missing'}`);
 
   const response = await fetch(config.routes.data, {
     headers: {
@@ -45,16 +40,12 @@ export const fetchErdData = async (config: ErdConfig): Promise<any> => {
     }
   });
 
-  debugLog('API', `Response status: ${response.status}`);
-  debugLog('API', 'Response headers', Object.fromEntries(response.headers.entries()));
 
   if (!response.ok) {
-    debugError('API', `Response not OK: ${response.status} ${response.statusText}`);
     throw new Error(`Failed to fetch ERD data: ${response.statusText}`);
   }
 
   const result = await response.json();
-  debugLog('API', 'Raw response data received');
 
   return result;
 };
@@ -63,7 +54,6 @@ export const fetchErdData = async (config: ErdConfig): Promise<any> => {
  * Refresh ERD data (placeholder for future implementation)
  */
 export const refreshErdData = async (config: ErdConfig): Promise<any> => {
-  debugLog('API', 'Refreshing ERD data...');
   // For now, just refetch the data instead of calling a separate refresh endpoint
   // This avoids CSRF issues until the backend refresh endpoint is properly implemented
   return fetchErdData(config);

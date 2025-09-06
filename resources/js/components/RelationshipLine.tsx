@@ -3,19 +3,13 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
-  getBezierPath,
+  getStraightPath,
 } from 'reactflow';
 
-interface RelationshipLineProps extends EdgeProps {
-  data?: {
-    relationshipType: string;
-    sourceKey: string;
-    foreignKey: string;
-  };
-}
-
-const RelationshipLine: React.FC<RelationshipLineProps> = ({
-  id,
+/**
+ * Simple relationship edge that shows relationship type and direction
+ */
+const RelationshipLine: React.FC<EdgeProps> = ({
   sourceX,
   sourceY,
   targetX,
@@ -24,79 +18,39 @@ const RelationshipLine: React.FC<RelationshipLineProps> = ({
   targetPosition,
   style = {},
   data,
-  markerEnd,
+  label,
 }) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const [edgePath, labelX, labelY] = getStraightPath({
     sourceX,
     sourceY,
-    sourcePosition,
     targetX,
     targetY,
-    targetPosition,
   });
 
-  // Get relationship type styling
-  const getRelationshipStyle = (type: string) => {
-    const styles = {
-      hasOne: {
-        stroke: '#10b981', // green
-        strokeWidth: 2,
-        strokeDasharray: 'none',
-      },
-      hasMany: {
-        stroke: '#3b82f6', // blue
-        strokeWidth: 2,
-        strokeDasharray: 'none',
-      },
-      belongsTo: {
-        stroke: '#f59e0b', // amber
-        strokeWidth: 2,
-        strokeDasharray: '5,5',
-      },
-      belongsToMany: {
-        stroke: '#8b5cf6', // violet
-        strokeWidth: 3,
-        strokeDasharray: 'none',
-      },
-      morphTo: {
-        stroke: '#ef4444', // red
-        strokeWidth: 2,
-        strokeDasharray: '10,5',
-      },
-    };
+  // Get relationship info from data
+  const relationships = data?.relationships || [];
+  const relationshipCount = data?.relationshipCount || 1;
 
-    return styles[type as keyof typeof styles] || {
-      stroke: '#6b7280',
-      strokeWidth: 2,
-      strokeDasharray: 'none',
-    };
+  // Determine edge style based on relationship type
+  const getEdgeStyle = () => {
+    if (relationships.some((r: any) => r.relationshipType === 'belongsToMany')) {
+      return { stroke: '#8b5cf6', strokeWidth: 3 }; // Purple, thick for many-to-many
+    } else if (relationships.some((r: any) => r.relationshipType === 'hasMany')) {
+      return { stroke: '#3b82f6', strokeWidth: 2 }; // Blue for one-to-many
+    } else if (relationships.some((r: any) => r.relationshipType === 'hasOne')) {
+      return { stroke: '#10b981', strokeWidth: 2 }; // Green for one-to-one
+    } else {
+      return { stroke: '#6b7280', strokeWidth: 2 }; // Gray default
+    }
   };
-
-  // Get relationship type label and icon
-  const getRelationshipLabel = (type: string) => {
-    const labels = {
-      hasOne: { text: '1:1', icon: '→' },
-      hasMany: { text: '1:N', icon: '→→' },
-      belongsTo: { text: 'N:1', icon: '←' },
-      belongsToMany: { text: 'N:N', icon: '↔' },
-      morphTo: { text: 'morph', icon: '~' },
-    };
-
-    return labels[type as keyof typeof labels] || { text: type, icon: '—' };
-  };
-
-  const relationshipType = data?.relationshipType || 'unknown';
-  const relationshipStyle = getRelationshipStyle(relationshipType);
-  const relationshipLabel = getRelationshipLabel(relationshipType);
 
   return (
     <>
       <BaseEdge
         path={edgePath}
-        markerEnd={markerEnd}
         style={{
           ...style,
-          ...relationshipStyle,
+          ...getEdgeStyle(),
         }}
       />
       <EdgeLabelRenderer>
@@ -104,19 +58,19 @@ const RelationshipLine: React.FC<RelationshipLineProps> = ({
           style={{
             position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 11,
-            fontWeight: 500,
+            fontSize: 10,
+            fontWeight: 'bold',
             pointerEvents: 'all',
+            background: 'white',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            padding: '2px 6px',
           }}
-          className="nodrag nopan bg-white border border-gray-300 rounded px-2 py-1 shadow-sm"
         >
-          <div className="flex items-center space-x-1">
-            <span className="text-gray-600">{relationshipLabel.icon}</span>
-            <span className="text-gray-800">{relationshipLabel.text}</span>
-          </div>
-          {data?.sourceKey && data?.foreignKey && (
-            <div className="text-xs text-gray-500 mt-1">
-              {data.sourceKey} → {data.foreignKey}
+          {label}
+          {relationshipCount > 1 && (
+            <div style={{ fontSize: 8, color: '#666' }}>
+              ({relationshipCount} rels)
             </div>
           )}
         </div>

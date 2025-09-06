@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStore } from 'reactflow';
+import { useStore, Handle, Position } from 'reactflow';
 import { Table, Relationship, Column } from '../types/erd';
 
 interface TableNodeProps {
@@ -61,73 +61,126 @@ const TableNode: React.FC<TableNodeProps> = ({ table, relationships }) => {
 
   return (
     <div
-      className={`erd-table bg-white border border-gray-300 rounded-lg shadow-sm min-w-[280px] max-w-[320px] transition-all duration-200 ${
-        isBeingDragged ? 'shadow-xl border-blue-500 scale-105 rotate-1' : 
-        isHovered ? 'shadow-lg border-blue-400' : ''
-      }`}
+      style={{
+        background: 'white',
+        border: isBeingDragged ? '2px solid #3b82f6' : isHovered ? '1px solid #60a5fa' : '1px solid #ddd',
+        borderRadius: '4px',
+        minWidth: '200px',
+        maxWidth: '320px',
+        fontSize: '12px',
+        boxShadow: isBeingDragged ? '0 10px 25px rgba(0,0,0,0.15)' : isHovered ? '0 4px 12px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.1)',
+        transform: isBeingDragged ? 'scale(1.02)' : 'scale(1)',
+        transition: 'all 0.2s ease'
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Handles for connections */}
+      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
+
       {/* Table Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 rounded-t-lg flex items-center justify-between cursor-grab active:cursor-grabbing">
-        <div className="flex items-center space-x-2 flex-1 min-w-0">
+      <div style={{
+        background: '#3b82f6',
+        color: 'white',
+        padding: '8px',
+        fontWeight: 'bold',
+        borderRadius: '4px 4px 0 0',
+        cursor: 'grab',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
           {/* Drag handle indicator */}
-          <svg className="w-4 h-4 opacity-70 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <svg style={{ width: '16px', height: '16px', opacity: 0.7, flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
           </svg>
-          <h3 className="font-semibold text-base truncate">{table.name}</h3>
+          <h3 style={{ fontWeight: 'bold', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {table.name}
+          </h3>
         </div>
-        <div className="text-xs opacity-90 flex-shrink-0 ml-2">
+        <div style={{ fontSize: '10px', opacity: 0.9, flexShrink: 0, marginLeft: '8px' }}>
           {table.columns.length}
         </div>
       </div>
 
-      {/* Columns List */}
-      <div className="overflow-y-auto">
-        {table.columns.map((column, index) => (
+      {/* Columns */}
+      <div style={{ padding: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+        {table.columns.slice(0, 5).map((column) => (
           <div
             key={`${table.id}-${column.name}`}
-            className={`px-4 py-2 border-b border-gray-100 last:border-b-0 flex items-center justify-between group hover:bg-gray-50 ${
-              column.primary ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-            }`}
+            style={{
+              padding: '2px 4px',
+              borderBottom: '1px solid #eee',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: column.primary ? '#eff6ff' : 'transparent',
+              borderLeft: column.primary ? '3px solid #3b82f6' : 'none'
+            }}
           >
-            <div className="flex items-center space-x-2 flex-1 min-w-0">
-              <span className="text-xs w-4 text-center" title={
+            <span style={{ 
+              fontWeight: column.primary ? 'bold' : 'normal',
+              fontSize: '11px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              flex: 1,
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              <span style={{ width: '16px', textAlign: 'center', flexShrink: 0 }} title={
                 column.primary ? 'Primary Key' : 
                 column.unique ? 'Unique' : 
                 !column.nullable ? 'Not Nullable' : ''
               }>
                 {getColumnIcon(column)}
               </span>
-              <span className={`font-medium truncate text-sm ${
-                column.primary ? 'text-blue-700' : 'text-gray-900'
-              }`}>
-                {column.name}
-              </span>
-            </div>
-            <div className="flex items-center space-x-1 text-xs flex-shrink-0 ml-2">
-              <span className={`${getColumnTypeColor(column.type)} font-mono`}>
-                {column.type}
-              </span>
-              {column.nullable && (
-                <span className="text-gray-400" title="Nullable">?</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Relationships Summary */}
-      {relationships.length > 0 && (
-        <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-          <div className="text-xs text-gray-600" title={getRelationshipSummary()}>
-            <span className="inline-flex items-center">
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
-              </svg>
-              {relationships.length} rel{relationships.length !== 1 ? 's' : ''}
+              {column.name}
+            </span>
+            <span style={{ 
+              color: '#666', 
+              fontSize: '10px',
+              fontFamily: 'monospace',
+              flexShrink: 0,
+              marginLeft: '8px'
+            }}>
+              {column.type}
+              {column.nullable && <span style={{ color: '#999' }} title="Nullable">?</span>}
             </span>
           </div>
+        ))}
+        {table.columns.length > 5 && (
+          <div style={{ padding: '2px 4px', color: '#666', fontSize: '10px' }}>
+            +{table.columns.length - 5} more...
+          </div>
+        )}
+      </div>
+
+      {/* Relationships count - show unique table connections */}
+      {relationships.length > 0 && (
+        <div style={{
+          padding: '4px 8px',
+          background: '#f5f5f5',
+          fontSize: '10px',
+          color: '#666',
+          borderRadius: '0 0 4px 4px'
+        }}>
+          {/* Count unique connected tables */}
+          {(() => {
+            const connectedTables = new Set();
+            relationships.forEach(rel => {
+              if (rel.source === table.id) connectedTables.add(rel.target);
+              if (rel.target === table.id) connectedTables.add(rel.source);
+            });
+            const count = connectedTables.size;
+            return `${count} connection${count !== 1 ? 's' : ''}`;
+          })()}
         </div>
       )}
     </div>

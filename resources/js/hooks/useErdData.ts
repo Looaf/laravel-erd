@@ -8,7 +8,6 @@ import {
   processApiResponse,
   createTestEdge 
 } from '../utils/erdDataUtils';
-import { debugLog, debugError, debugFlowData } from '../utils/debugUtils';
 
 /**
  * Custom hook for managing ERD data state and API calls
@@ -34,37 +33,24 @@ export const useErdData = (config?: ErdConfig) => {
 
       // Convert to React Flow format
       const flowNodes = convertTablesToNodes(processedData);
-      const flowEdges = convertRelationshipsToEdges(processedData.relationships);
-
-      debugLog('HOOK', 'Converting to React Flow format');
-      debugFlowData(flowNodes, flowEdges);
+      const availableNodeIds = processedData.tables.map(t => t.id);
+      const flowEdges = convertRelationshipsToEdges(processedData.relationships, availableNodeIds);
 
       setNodes(flowNodes);
       setEdges(flowEdges);
 
-      // Debug: If no edges but we have nodes, create a test edge
-      if (flowEdges.length === 0 && flowNodes.length >= 2) {
-        const testEdge = createTestEdge(flowNodes);
-        if (testEdge) {
-          setEdges([testEdge]);
-        }
-      }
     } catch (err) {
-      debugError('HOOK', 'Error in loadErdData', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
-      debugLog('HOOK', 'Fetch complete, loading set to false');
     }
   }, [erdConfig]);
 
   const refreshData = useCallback(async () => {
-    debugLog('HOOK', 'Refresh requested, reloading data...');
     await loadErdData();
   }, [loadErdData]);
 
   const updateNodePosition = useCallback((nodeId: string, position: { x: number; y: number }) => {
-    debugLog('HOOK', `Node ${nodeId} moved to position: ${position.x}, ${position.y}`);
 
     if (erdData) {
       const updatedTables = erdData.tables.map(table =>
@@ -81,8 +67,6 @@ export const useErdData = (config?: ErdConfig) => {
   }, [erdData]);
 
   useEffect(() => {
-    debugLog('HOOK', 'useErdData hook initialized');
-    debugLog('HOOK', 'Config loaded', erdConfig);
     loadErdData();
   }, [loadErdData]);
 

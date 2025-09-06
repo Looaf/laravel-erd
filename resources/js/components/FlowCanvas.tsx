@@ -13,7 +13,6 @@ import ReactFlow, {
 } from 'reactflow';
 import { ErdData } from '../types/erd';
 import { calculateAutoLayout } from '../utils/erdDataUtils';
-import { debugLog } from '../utils/debugUtils';
 import TableNode from './TableNode';
 import RelationshipLine from './RelationshipLine';
 import ZoomControls from './ZoomControls';
